@@ -1,0 +1,909 @@
+<!-- File: index.html -->
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoKas - Monitoring Uang Kas Kelas</title>
+    <meta name="description" content="Aplikasi monitoring dan pencatatan uang kas kelas untuk Bendahara. Kelola pembayaran kas bulanan dan mingguan siswa.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar Backdrop for Mobile -->
+        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="brand-logo">
+                    <i class="fa-solid fa-wallet"></i>
+                    <span>GoKas</span>
+                </div>
+                <button class="btn-icon mobile-close-btn" id="mobileCloseBtn" aria-label="Tutup Menu">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-label">Navigasi</div>
+                <a href="#dashboard" class="menu-item active" data-nav="dashboard">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <div class="menu-label">Kelola Data</div>
+                <button class="menu-action-btn" id="openStudentModalBtn">
+                    <i class="fa-solid fa-users-gear"></i>
+                    <span>Kelola Siswa</span>
+                </button>
+
+                <div class="menu-label">Aksi Cepat</div>
+                <button class="menu-action-btn" id="quickAddBtn">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                    <span>Catat Pembayaran</span>
+                </button>
+                <button class="menu-action-btn" id="quickExpenseBtn">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span>Catat Pengeluaran</span>
+                </button>
+                <button class="menu-action-btn" id="quickPrintBtn">
+                    <i class="fa-solid fa-print"></i>
+                    <span>Cetak Laporan</span>
+                </button>
+
+                <div class="menu-label">Pengaturan Data</div>
+                <button class="menu-action-btn menu-action-danger" id="openResetModalBtn">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Hapus Semua Data</span>
+                </button>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">Bendahara Kelas</span>
+                        <span class="user-role">Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-wrapper">
+            <!-- Header Navbar -->
+            <header class="navbar">
+                <div class="navbar-left">
+                    <button class="btn-icon toggle-sidebar-btn" id="toggleSidebarBtn" aria-label="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h1 class="page-title">Monitoring Kas Kelas</h1>
+                </div>
+                <div class="navbar-right">
+                    <div class="date-badge" id="currentDateBadge">
+                        <i class="fa-regular fa-calendar-days"></i>
+                        <span id="currentDateText">-- -- ----</span>
+                    </div>
+                    <button class="theme-toggle-btn" id="themeToggleBtn" title="Ganti Mode Tampilan" aria-label="Ganti Tema">
+                        <i class="fa-solid fa-moon" id="themeIcon"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Content Container -->
+            <main class="content-body" id="dashboard">
+                <!-- Stat Cards -->
+                <section class="stats-grid">
+                    <!-- Saldo Kas -->
+                    <div class="stat-card primary">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-sack-dollar"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label">Saldo Kas</span>
+                            <h2 class="stat-value" id="statSaldoKas">Rp 0</h2>
+                            <span class="stat-subtext"><i class="fa-solid fa-wallet"></i> Pemasukan - Pengeluaran</span>
+                        </div>
+                    </div>
+
+                    <!-- Total Pemasukan -->
+                    <div class="stat-card success">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-arrow-trend-up"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label">Total Pemasukan</span>
+                            <h2 class="stat-value" id="statTotalMasuk">Rp 0</h2>
+                            <span class="stat-subtext"><i class="fa-solid fa-money-bill-wave"></i> Kas terkumpul</span>
+                        </div>
+                    </div>
+
+                    <!-- Total Pengeluaran -->
+                    <div class="stat-card danger">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-arrow-trend-down"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label">Total Pengeluaran</span>
+                            <h2 class="stat-value" id="statTotalKeluar">Rp 0</h2>
+                            <span class="stat-subtext"><i class="fa-solid fa-cart-shopping"></i> Belanja kelas</span>
+                        </div>
+                    </div>
+
+                    <!-- Total Siswa -->
+                    <div class="stat-card info">
+                        <div class="stat-icon">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label">Total Siswa</span>
+                            <h2 class="stat-value" id="statTotalSiswa">0 Siswa</h2>
+                            <span class="stat-subtext"><i class="fa-solid fa-list-check"></i> Siswa terdaftar</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Card -->
+                    <div class="stat-card progress-card">
+                        <div class="stat-details full-width">
+                            <div class="progress-header">
+                                <span class="stat-label">Pembayaran Bulan Ini</span>
+                                <span class="progress-percentage-text" id="statPercentageText">0%</span>
+                            </div>
+                            <div class="progress-bar-bg">
+                                <div class="progress-bar-fill" id="progressBarFill" style="width: 0%;"></div>
+                            </div>
+                            <span class="stat-subtext" id="statProgressSubtext">0 dari 0 siswa lunas</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Charts -->
+                <section class="analytics-grid">
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fa-solid fa-chart-area"></i>
+                                Arus Kas 6 Bulan Terakhir
+                            </h3>
+                        </div>
+                        <div class="card-body chart-wrapper">
+                            <canvas id="incomeChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card chart-card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fa-solid fa-chart-pie"></i>
+                                Status Pembayaran
+                            </h3>
+                        </div>
+                        <div class="card-body chart-wrapper">
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Tabbed Data Section -->
+                <section class="card table-card" id="tableSection">
+                    <!-- Tab Navigation -->
+                    <div class="tab-nav">
+                        <button class="tab-btn active" data-tab="kasmasuk" id="tabKasMasuk">
+                            <i class="fa-solid fa-money-bill-wave"></i>
+                            <span>Kas Masuk</span>
+                            <span class="tab-badge" id="tabBadgeMasuk">0</span>
+                        </button>
+                        <button class="tab-btn" data-tab="pengeluaran" id="tabPengeluaran">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <span>Pengeluaran</span>
+                            <span class="tab-badge tab-badge-danger" id="tabBadgeKeluar">0</span>
+                        </button>
+                    </div>
+
+                    <!-- TAB: KAS MASUK -->
+                    <div class="tab-content active" id="tabContentKasMasuk">
+                        <div class="toolbar">
+                            <div class="toolbar-search">
+                                <div class="search-box">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <input type="text" id="searchInput" placeholder="Cari nama siswa, kelas, atau no. absen...">
+                                </div>
+                            </div>
+                            <div class="toolbar-filters">
+                                <div class="filter-group month-nav-group">
+                                    <button class="btn-icon btn-month-nav" id="prevMonthBtn" title="Bulan Sebelumnya">
+                                        <i class="fa-solid fa-chevron-left"></i>
+                                    </button>
+                                    <input type="month" id="bulanFilter" class="form-select">
+                                    <button class="btn-icon btn-month-nav" id="nextMonthBtn" title="Bulan Berikutnya">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="statusFilter"><i class="fa-solid fa-filter"></i></label>
+                                    <select id="statusFilter" class="form-select">
+                                        <option value="ALL">Semua Status</option>
+                                        <option value="Lunas">Lunas</option>
+                                        <option value="Cicilan">Cicilan</option>
+                                        <option value="Belum Bayar">Belum Bayar</option>
+                                    </select>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="sortSelect"><i class="fa-solid fa-arrow-down-short-wide"></i></label>
+                                    <select id="sortSelect" class="form-select">
+                                        <option value="absen-asc">Absen (1-50)</option>
+                                        <option value="name-asc">Nama (A-Z)</option>
+                                        <option value="name-desc">Nama (Z-A)</option>
+                                        <option value="total-desc">Bayar (Tertinggi)</option>
+                                        <option value="total-asc">Bayar (Terendah)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="toolbar-actions">
+                                <button class="btn btn-primary" id="openAddModalBtn">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>Bayar</span>
+                                </button>
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" id="exportDropdownBtn">
+                                        <i class="fa-solid fa-file-export"></i>
+                                        <span>Export</span>
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </button>
+                                    <div class="dropdown-menu" id="exportDropdownMenu">
+                                        <button class="dropdown-item" id="exportCsvBtn"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+                                        <button class="dropdown-item" id="exportJsonBtn"><i class="fa-solid fa-file-code"></i> Export JSON</button>
+                                        <button class="dropdown-item" id="exportPdfBtn"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+                                    </div>
+                                </div>
+                                <button class="btn btn-outline" id="openImportModalBtn">
+                                    <i class="fa-solid fa-file-import"></i>
+                                    <span>Import</span>
+                                </button>
+                                <button class="btn btn-secondary" id="printReportBtn">
+                                    <i class="fa-solid fa-print"></i>
+                                    <span>Print</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 70px;" class="text-center">No. Absen</th>
+                                        <th>Nama Siswa</th>
+                                        <th style="width: 100px;">Kelas</th>
+                                        <th>Progress Pembayaran</th>
+                                        <th style="width: 110px;">Status</th>
+                                        <th style="width: 90px;" class="text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="paymentTableBody"></tbody>
+                            </table>
+                            <div class="empty-state hidden" id="emptyState">
+                                <i class="fa-solid fa-folder-open"></i>
+                                <h3>Belum Ada Data Siswa</h3>
+                                <p>Tambahkan siswa terlebih dahulu melalui menu "Kelola Siswa" di sidebar.</p>
+                            </div>
+                        </div>
+
+                        <div class="pagination-wrapper">
+                            <div class="pagination-info">
+                                Menampilkan <span id="paginationStart">0</span> - <span id="paginationEnd">0</span> dari <span id="paginationTotal">0</span> siswa
+                            </div>
+                            <div class="pagination-controls">
+                                <div class="items-per-page">
+                                    <label for="pageSizeSelect">Per halaman:</label>
+                                    <select id="pageSizeSelect" class="form-select-sm">
+                                        <option value="5">5</option>
+                                        <option value="10" selected>10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                    </select>
+                                </div>
+                                <div class="pagination-buttons" id="paginationNav"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB: PENGELUARAN -->
+                    <div class="tab-content" id="tabContentPengeluaran">
+                        <div class="toolbar">
+                            <div class="toolbar-search">
+                                <div class="search-box">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <input type="text" id="expenseSearchInput" placeholder="Cari keterangan atau kategori pengeluaran...">
+                                </div>
+                            </div>
+                            <div class="toolbar-filters">
+                                <div class="filter-group month-nav-group">
+                                    <button class="btn-icon btn-month-nav" id="expPrevMonthBtn" title="Bulan Sebelumnya">
+                                        <i class="fa-solid fa-chevron-left"></i>
+                                    </button>
+                                    <input type="month" id="expenseBulanFilter" class="form-select">
+                                    <button class="btn-icon btn-month-nav" id="expNextMonthBtn" title="Bulan Berikutnya">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                                <div class="filter-group">
+                                    <label for="expenseCategoryFilter"><i class="fa-solid fa-filter"></i></label>
+                                    <select id="expenseCategoryFilter" class="form-select">
+                                        <option value="ALL">Semua Kategori</option>
+                                        <option value="Alat Tulis">Alat Tulis</option>
+                                        <option value="Fotokopi">Fotokopi</option>
+                                        <option value="Konsumsi">Konsumsi</option>
+                                        <option value="Kegiatan Kelas">Kegiatan Kelas</option>
+                                        <option value="Kebersihan">Kebersihan</option>
+                                        <option value="Lain-lain">Lain-lain</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="toolbar-actions">
+                                <button class="btn btn-danger" id="openExpenseModalBtn">
+                                    <i class="fa-solid fa-plus"></i>
+                                    <span>Tambah Pengeluaran</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Tanggal</th>
+                                        <th>Kategori</th>
+                                        <th>Keterangan</th>
+                                        <th>Nominal</th>
+                                        <th class="text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expenseTableBody"></tbody>
+                            </table>
+                            <div class="empty-state hidden" id="expenseEmptyState">
+                                <i class="fa-solid fa-receipt"></i>
+                                <h3>Belum Ada Pengeluaran</h3>
+                                <p>Belum ada data pengeluaran untuk bulan ini.</p>
+                            </div>
+                        </div>
+
+                        <!-- Expense Summary -->
+                        <div class="expense-summary" id="expenseSummary">
+                            <div class="expense-summary-item">
+                                <span>Total Pengeluaran Bulan Ini:</span>
+                                <strong id="expenseMonthTotal">Rp 0</strong>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <!-- Professional Print View Container (Only visible during print) -->
+            <div id="printArea" class="print-only">
+                <div class="print-document">
+                    <!-- Kop & Header Dokumen -->
+                    <div class="print-header">
+                        <div class="print-kop">
+                            <div class="print-brand">
+                                <span class="print-brand-title">GOKAS &bull; MONITORING KEUANGAN KELAS</span>
+                                <span class="print-brand-sub">SISTEM INFORMASI PENGELOLAAN DANA KAS &amp; OPERASIONAL KELAS</span>
+                            </div>
+                            <h1 class="print-main-title">LAPORAN PERTANGGUNGJAWABAN KAS KELAS</h1>
+                            <div class="print-meta-grid">
+                                <div class="print-meta-item">
+                                    <span class="meta-label">Periode Kas:</span>
+                                    <strong class="meta-val" id="printPeriodeBulan">--</strong>
+                                </div>
+                                <div class="print-meta-item">
+                                    <span class="meta-label">Target Iuran:</span>
+                                    <strong class="meta-val">Rp 20.000 / Siswa</strong>
+                                </div>
+                                <div class="print-meta-item">
+                                    <span class="meta-label">Tanggal Cetak:</span>
+                                    <strong class="meta-val" id="printTanggalCetak">--</strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="print-divider-line"></div>
+                    </div>
+
+                    <!-- Ringkasan Finansial Eksekutif -->
+                    <div class="print-section">
+                        <h3 class="print-section-title">I. RINGKASAN KEUANGAN BULAN INI</h3>
+                        <div class="print-summary-grid">
+                            <div class="print-summary-box">
+                                <span class="sum-box-label">TOTAL PEMASUKAN</span>
+                                <strong class="sum-box-val text-success" id="printTotalMasuk">Rp 0</strong>
+                                <span class="sum-box-note" id="printSummaryPemasukanNote">Dari total iuran siswa</span>
+                            </div>
+                            <div class="print-summary-box">
+                                <span class="sum-box-label">TOTAL PENGELUARAN</span>
+                                <strong class="sum-box-val text-danger" id="printTotalKeluar">Rp 0</strong>
+                                <span class="sum-box-note" id="printSummaryPengeluaranNote">0 transaksi belanja</span>
+                            </div>
+                            <div class="print-summary-box print-summary-highlight">
+                                <span class="sum-box-label">SISA SALDO KAS</span>
+                                <strong class="sum-box-val" id="printSaldoKas">Rp 0</strong>
+                                <span class="sum-box-note">Pemasukan - Pengeluaran</span>
+                            </div>
+                            <div class="print-summary-box">
+                                <span class="sum-box-label">STATUS KELUNASAN</span>
+                                <strong class="sum-box-val" id="printLunasPercentage">0%</strong>
+                                <span class="sum-box-note" id="printSummarySiswaNote">0 Lunas / 0 Siswa</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabel 1: Penerimaan Kas Siswa -->
+                    <div class="print-section">
+                        <h3 class="print-section-title">II. REKAPITULASI PENERIMAAN IURAN SISWA</h3>
+                        <table class="print-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 65px;" class="text-center">No. Absen</th>
+                                    <th>Nama Lengkap Siswa</th>
+                                    <th style="width: 85px;" class="text-center">Kelas</th>
+                                    <th style="width: 105px;" class="text-center">Target (Rp)</th>
+                                    <th style="width: 105px;" class="text-center">Dibayar (Rp)</th>
+                                    <th style="width: 95px;" class="text-center">Sisa (Rp)</th>
+                                    <th style="width: 90px;" class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="printTableBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="print-tfoot-row">
+                                    <td colspan="4" class="text-right"><strong>TOTAL PENERIMAAN KAS SISWA:</strong></td>
+                                    <td class="text-center"><strong id="printTfootTotalBayar">Rp 0</strong></td>
+                                    <td class="text-center"><strong id="printTfootTotalSisa">Rp 0</strong></td>
+                                    <td class="text-center"><strong id="printTfootStatus">--</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <!-- Tabel 2: Rincian Pengeluaran Kas -->
+                    <div class="print-section">
+                        <h3 class="print-section-title">III. RINCIAN PENGELUARAN &amp; BELANJA KELAS</h3>
+                        <table class="print-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;" class="text-center">No</th>
+                                    <th style="width: 110px;" class="text-center">Tanggal</th>
+                                    <th style="width: 140px;">Kategori</th>
+                                    <th>Keterangan / Keperluan Pengeluaran</th>
+                                    <th style="width: 140px;" class="text-center">Nominal (Rp)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="printExpenseTableBody">
+                                <!-- Dynamic rows -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="print-tfoot-row">
+                                    <td colspan="4" class="text-right"><strong>TOTAL PENGELUARAN OPERASIONAL:</strong></td>
+                                    <td class="text-center"><strong id="printTfootTotalKeluar">Rp 0</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <!-- Lembar Pengesahan / Tanda Tangan -->
+                    <div class="print-signature-section">
+                        <div class="print-signature-date">
+                            <span id="printTtdDateLocation">Dibuat pada: --</span>
+                        </div>
+                        <div class="print-signature-grid">
+                            <div class="print-signature-box">
+                                <span class="sig-title">Mengetahui / Menyetujui,</span>
+                                <strong class="sig-role">Wali Kelas</strong>
+                                <div class="sig-space"></div>
+                                <div class="sig-line"></div>
+                                <span class="sig-name">( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</span>
+                                <span class="sig-id">NIP. .....................................................</span>
+                            </div>
+                            <div class="print-signature-box">
+                                <span class="sig-title">Dilaporkan oleh,</span>
+                                <strong class="sig-role">Bendahara Kelas</strong>
+                                <div class="sig-space"></div>
+                                <div class="sig-line"></div>
+                                <span class="sig-name">( &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; )</span>
+                                <span class="sig-id">NIS / No. Absen: ..............................</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Note -->
+                    <div class="print-footer-notice">
+                        <span>Dokumen ini dicetak otomatis melalui Aplikasi GoKas &bull; Laporan Resmi Keuangan Kelas</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: KELOLA SISWA -->
+    <div class="modal-overlay" id="studentModal">
+        <div class="modal-container modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title" id="studentModalTitle"><i class="fa-solid fa-users"></i> Kelola Data Siswa</h3>
+                <button class="modal-close" id="closeStudentModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="studentForm" class="student-form-inline">
+                    <div class="form-row">
+                        <div class="form-group col-6" style="margin-bottom:0;">
+                            <label for="studentNama">Nama Siswa <span class="required">*</span></label>
+                            <input type="text" id="studentNama" class="form-control" placeholder="Nama lengkap siswa" required>
+                            <div class="invalid-feedback">Nama siswa wajib diisi.</div>
+                        </div>
+                        <div class="form-group col-4" style="margin-bottom:0;">
+                            <label for="studentKelas">Kelas <span class="required">*</span></label>
+                            <input type="text" id="studentKelas" class="form-control" placeholder="Contoh: XII RPL 1" required>
+                            <div class="invalid-feedback">Kelas wajib diisi.</div>
+                        </div>
+                        <div class="form-group col-2" style="margin-bottom:0;">
+                            <label for="studentAbsen">Absen <span class="required">*</span></label>
+                            <input type="number" id="studentAbsen" class="form-control" min="1" max="100" placeholder="1" required>
+                            <div class="invalid-feedback">Wajib.</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;justify-content:flex-end;margin-top:1rem;">
+                        <button type="submit" class="btn btn-primary" id="saveStudentBtn"><i class="fa-solid fa-plus"></i> Tambah Siswa</button>
+                    </div>
+                </form>
+                <div class="student-list-divider"><span><i class="fa-solid fa-list"></i> Daftar Siswa Terdaftar</span></div>
+                <div class="table-responsive" style="min-height:100px;max-height:400px;overflow-y:auto;">
+                    <table class="data-table">
+                        <thead><tr><th style="width: 70px;" class="text-center">No. Absen</th><th>Nama Siswa</th><th>Kelas</th><th class="text-center">Aksi</th></tr></thead>
+                        <tbody id="studentListBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CATAT PEMBAYARAN -->
+    <div class="modal-overlay" id="paymentModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fa-solid fa-money-bill-wave"></i> Catat Pembayaran Kas</h3>
+                <button class="modal-close" id="closePaymentModalBtn">&times;</button>
+            </div>
+            <form id="paymentForm">
+                <div class="modal-body">
+                    <div class="kas-info-banner">
+                        <div class="kas-info-item"><i class="fa-solid fa-calendar-check"></i> <span>Bulanan: <strong>Rp 20.000</strong></span></div>
+                        <div class="kas-info-divider"></div>
+                        <div class="kas-info-item"><i class="fa-solid fa-calendar-week"></i> <span>Mingguan: <strong>Rp 5.000</strong> x 4</span></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentStudentSelect">Pilih Siswa <span class="required">*</span></label>
+                        <select id="paymentStudentSelect" class="form-control" required><option value="">-- Pilih Siswa --</option></select>
+                        <div class="invalid-feedback">Pilih siswa terlebih dahulu.</div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="paymentTipe">Tipe Pembayaran <span class="required">*</span></label>
+                            <select id="paymentTipe" class="form-control" required>
+                                <option value="mingguan">Mingguan (Rp 5.000)</option>
+                                <option value="bulanan">Bulanan (Rp 20.000 / 1 Bulan)</option>
+                                <option value="multi_bulan">Multi-Bulan (Bayar di Muka: 2-12 Bulan)</option>
+                                <option value="kustom">Kustom / Bebas (Cicil Acak: 1k, 2k, dll.)</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-6" id="mingguGroup">
+                            <label for="paymentMinggu">Minggu Ke- <span class="required">*</span></label>
+                            <select id="paymentMinggu" class="form-control">
+                                <option value="1">Minggu ke-1</option>
+                                <option value="2">Minggu ke-2</option>
+                                <option value="3">Minggu ke-3</option>
+                                <option value="4">Minggu ke-4</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-6" id="multiBulanCountGroup" style="display: none;">
+                            <label for="paymentMultiBulanCount">Durasi Paket Bulan <span class="required">*</span></label>
+                            <select id="paymentMultiBulanCount" class="form-control">
+                                <option value="2">2 Bulan (Rp 40.000)</option>
+                                <option value="3">3 Bulan (Rp 60.000)</option>
+                                <option value="4">4 Bulan (Rp 80.000)</option>
+                                <option value="5" selected>5 Bulan (Rp 100.000)</option>
+                                <option value="6">6 Bulan (Rp 120.000)</option>
+                                <option value="7">7 Bulan (Rp 140.000)</option>
+                                <option value="8">8 Bulan (Rp 160.000)</option>
+                                <option value="9">9 Bulan (Rp 180.000)</option>
+                                <option value="10">10 Bulan (Rp 200.000)</option>
+                                <option value="11">11 Bulan (Rp 220.000)</option>
+                                <option value="12">12 Bulan (1 Tahun / Rp 240.000)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Custom Nominal Group -->
+                    <div class="form-group" id="customNominalGroup" style="display: none;">
+                        <label for="paymentCustomNominal">Nominal Kustom (Rp) <span class="required">*</span></label>
+                        <input type="number" id="paymentCustomNominal" class="form-control" min="100" step="500" placeholder="Contoh: 1000, 2000, 7500">
+                        <div class="quick-nominal-chips">
+                            <button type="button" class="chip-nominal-btn" data-add="1000">+1.000</button>
+                            <button type="button" class="chip-nominal-btn" data-add="2000">+2.000</button>
+                            <button type="button" class="chip-nominal-btn" data-add="5000">+5.000</button>
+                            <button type="button" class="chip-nominal-btn" data-add="10000">+10.000</button>
+                            <button type="button" class="chip-sisa-btn" id="chipBayarSisaBtn">Bayar Sisa Bulan Ini</button>
+                        </div>
+                        <div class="invalid-feedback">Masukkan nominal kustom lebih dari 0.</div>
+                    </div>
+
+                    <!-- Multi-Month Period Preview -->
+                    <div class="form-group" id="multiBulanPreviewGroup" style="display: none;">
+                        <label class="text-sm text-muted">Rincian Periode Bulan yang Dibayar:</label>
+                        <div class="multi-bulan-preview-list" id="multiBulanPreviewList"></div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="paymentBulan" id="paymentBulanLabel">Bulan <span class="required">*</span></label>
+                            <input type="month" id="paymentBulan" class="form-control" required>
+                            <div class="invalid-feedback">Pilih bulan.</div>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="paymentTanggal">Tanggal Bayar <span class="required">*</span></label>
+                            <input type="date" id="paymentTanggal" class="form-control" required>
+                            <div class="invalid-feedback">Pilih tanggal.</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Total Nominal Dibayar</label>
+                        <div class="nominal-display" id="paymentNominalDisplay">Rp 5.000</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentKeterangan">Keterangan</label>
+                        <textarea id="paymentKeterangan" class="form-control" rows="2" placeholder="Catatan tambahan (opsional)"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelPaymentModalBtn">Batal</button>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Simpan Pembayaran</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: CATAT PENGELUARAN -->
+    <div class="modal-overlay" id="expenseModal">
+        <div class="modal-container">
+            <div class="modal-header header-expense">
+                <h3 class="modal-title"><i class="fa-solid fa-cart-shopping"></i> Catat Pengeluaran Kas</h3>
+                <button class="modal-close" id="closeExpenseModalBtn">&times;</button>
+            </div>
+            <form id="expenseForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="expenseKategori">Kategori <span class="required">*</span></label>
+                        <select id="expenseKategori" class="form-control" required>
+                            <option value="">-- Pilih Kategori --</option>
+                            <option value="Alat Tulis">Alat Tulis</option>
+                            <option value="Fotokopi">Fotokopi</option>
+                            <option value="Konsumsi">Konsumsi</option>
+                            <option value="Kegiatan Kelas">Kegiatan Kelas</option>
+                            <option value="Kebersihan">Kebersihan</option>
+                            <option value="Lain-lain">Lain-lain</option>
+                        </select>
+                        <div class="invalid-feedback">Pilih kategori.</div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label for="expenseNominal">Nominal (Rp) <span class="required">*</span></label>
+                            <input type="number" id="expenseNominal" class="form-control" min="1" step="500" placeholder="Contoh: 25000" required>
+                            <div class="invalid-feedback">Nominal harus lebih dari 0.</div>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="expenseTanggal">Tanggal <span class="required">*</span></label>
+                            <input type="date" id="expenseTanggal" class="form-control" required>
+                            <div class="invalid-feedback">Pilih tanggal.</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="expenseKeterangan">Keterangan <span class="required">*</span></label>
+                        <textarea id="expenseKeterangan" class="form-control" rows="2" placeholder="Contoh: Beli spidol whiteboard 3 pcs" required></textarea>
+                        <div class="invalid-feedback">Keterangan wajib diisi.</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelExpenseModalBtn">Batal</button>
+                    <button type="submit" class="btn btn-danger"><i class="fa-solid fa-floppy-disk"></i> Simpan Pengeluaran</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: DETAIL SISWA -->
+    <div class="modal-overlay" id="detailModal">
+        <div class="modal-container modal-lg">
+            <div class="modal-header">
+                <h3 class="modal-title" id="detailModalTitle"><i class="fa-solid fa-user"></i> Detail Pembayaran</h3>
+                <button class="modal-close" id="closeDetailModalBtn">&times;</button>
+            </div>
+            <div class="modal-body" id="detailModalBody"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="closeDetailFooterBtn">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: DELETE CONFIRMATION -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal-container modal-sm">
+            <div class="modal-header header-danger">
+                <h3 class="modal-title"><i class="fa-solid fa-triangle-exclamation"></i> Konfirmasi Hapus</h3>
+                <button class="modal-close" id="closeDeleteModalBtn">&times;</button>
+            </div>
+            <div class="modal-body text-center">
+                <p>Apakah Anda yakin ingin menghapus data ini?</p>
+                <div class="delete-info-box" id="deleteInfoBox"></div>
+                <p class="text-muted text-sm mt-2">Tindakan ini tidak dapat dibatalkan.</p>
+            </div>
+            <div class="modal-footer justify-center">
+                <button type="button" class="btn btn-secondary" id="cancelDeleteBtn">Batal</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn"><i class="fa-solid fa-trash-can"></i> Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: IMPORT JSON -->
+    <div class="modal-overlay" id="importModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fa-solid fa-file-import"></i> Import Data GoKas</h3>
+                <button class="modal-close" id="closeImportModalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Pilih file cadangan berformat JSON.</p>
+                <div class="file-upload-box" id="fileDropZone">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <p>Klik untuk memilih file JSON atau drag & drop</p>
+                    <input type="file" id="jsonFileInput" accept=".json">
+                    <span class="file-name-preview" id="fileNamePreview"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelImportBtn">Batal</button>
+                <button type="button" class="btn btn-primary" id="confirmImportBtn" disabled><i class="fa-solid fa-upload"></i> Proses Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: HAPUS SEMUA DATA (KONFIRMASI 3 LANGKAH) -->
+    <div class="modal-overlay" id="resetModal">
+        <div class="modal-container">
+            <div class="modal-header header-danger">
+                <h3 class="modal-title"><i class="fa-solid fa-triangle-exclamation"></i> Hapus Semua Data Aplikasi</h3>
+                <button class="modal-close" id="closeResetModalBtn">&times;</button>
+            </div>
+
+            <!-- Step Progress Indicator -->
+            <div class="step-indicator-bar">
+                <div class="step-badge active" id="stepBadge1">
+                    <span class="step-num">1</span>
+                    <span class="step-lbl">Peringatan</span>
+                </div>
+                <div class="step-line" id="stepLine1"></div>
+                <div class="step-badge" id="stepBadge2">
+                    <span class="step-num">2</span>
+                    <span class="step-lbl">Persetujuan</span>
+                </div>
+                <div class="step-line" id="stepLine2"></div>
+                <div class="step-badge" id="stepBadge3">
+                    <span class="step-num">3</span>
+                    <span class="step-lbl">Verifikasi</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Warning & Data Summary -->
+            <div class="reset-step-pane active" id="resetStep1">
+                <div class="modal-body">
+                    <div class="alert-box-danger">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <div>
+                            <strong>Peringatan Reset Kas!</strong>
+                            <p>Tindakan ini akan membersihkan seluruh catatan pembayaran uang kas dan riwayat pengeluaran. Daftar 34 nama siswa kelas tetap dipertahankan.</p>
+                        </div>
+                    </div>
+
+                    <h4 class="reset-subheading">Data yang akan dibersihkan:</h4>
+                    <div class="reset-impact-grid">
+                        <div class="reset-impact-item">
+                            <i class="fa-solid fa-users text-primary"></i>
+                            <div>
+                                <span class="lbl">Daftar Siswa</span>
+                                <strong id="resetSummaryStudents">34 Siswa (Tetap Ada)</strong>
+                            </div>
+                        </div>
+                        <div class="reset-impact-item">
+                            <i class="fa-solid fa-money-bill-wave text-success"></i>
+                            <div>
+                                <span class="lbl">Riwayat Kas Masuk</span>
+                                <strong id="resetSummaryPayments">0 Pembayaran</strong>
+                            </div>
+                        </div>
+                        <div class="reset-impact-item">
+                            <i class="fa-solid fa-cart-shopping text-danger"></i>
+                            <div>
+                                <span class="lbl">Data Pengeluaran</span>
+                                <strong id="resetSummaryExpenses">0 Transaksi</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="cancelResetStep1Btn">Batal</button>
+                    <button type="button" class="btn btn-danger" id="gotoStep2Btn">Lanjut ke Langkah 2 <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 2: Checkboxes Confirmation -->
+            <div class="reset-step-pane" id="resetStep2">
+                <div class="modal-body">
+                    <p class="mb-3">Centang seluruh pernyataan di bawah untuk melanjutkan:</p>
+                    <div class="reset-checklist">
+                        <label class="reset-checkbox-item">
+                            <input type="checkbox" id="resetCheck1">
+                            <span>Saya memahami bahwa <strong>seluruh catatan transaksi kas dan pengeluaran akan dibersihkan (nama 34 siswa tetap tersimpan)</strong>.</span>
+                        </label>
+                        <label class="reset-checkbox-item">
+                            <input type="checkbox" id="resetCheck2">
+                            <span>Saya mengerti bahwa <strong>tindakan reset kas ini bersifat permanen dan tidak dapat dibatalkan (undo)</strong>.</span>
+                        </label>
+                        <label class="reset-checkbox-item">
+                            <input type="checkbox" id="resetCheck3">
+                            <span>Saya sudah mengunduh cadangan (*Export JSON/CSV*) jika data lama masih diperlukan.</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="backToStep1Btn"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                    <button type="button" class="btn btn-danger" id="gotoStep3Btn" disabled>Lanjut ke Langkah 3 <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Step 3: Type Confirmation Phrase -->
+            <div class="reset-step-pane" id="resetStep3">
+                <div class="modal-body">
+                    <p class="mb-2">Sebagai langkah verifikasi terakhir, ketik kata kunci persis di bawah ini:</p>
+                    <div class="reset-phrase-box">HAPUS SEMUA DATA</div>
+                    <div class="form-group mt-3">
+                        <label for="resetConfirmInput">Ketik kata kunci di atas:</label>
+                        <input type="text" id="resetConfirmInput" class="form-control" placeholder="Ketik: HAPUS SEMUA DATA" autocomplete="off">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="backToStep2Btn"><i class="fa-solid fa-arrow-left"></i> Kembali</button>
+                    <button type="button" class="btn btn-danger" id="finalDeleteAllBtn" disabled><i class="fa-solid fa-trash-can"></i> Hapus Semua Data Permanen</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
